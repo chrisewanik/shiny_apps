@@ -3,7 +3,9 @@ library(shiny)
 library(shinydashboard)
 
 # Define UI for the app
-ui <- dashboardPage(
+ui <- 
+
+    dashboardPage(
     
     # Navbar
     dashboardHeader(title = "Canadian Baseball Connection"),
@@ -11,8 +13,10 @@ ui <- dashboardPage(
     # Sidebar
     dashboardSidebar(
         sidebarMenu(id = "someID",
+                    menuItem("Dashboard", tabName = "dashboard"),
                     selectInput("year", "Select Year", choices = c("2021", "2020")),
-                    selectInput("season", "Select Season", choices = c("Spring", "Summer"))
+                    selectInput("season", "Select Season", choices = c("Spring", "Summer")),
+                    selectInput("team", "Select Team", choices = c("PBA", "OC", "VIU"))
                     # ... additional code
         )
     ),

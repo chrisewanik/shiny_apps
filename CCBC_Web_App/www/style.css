@@ -1,0 +1,6 @@
+/* CSS */
+
+/* Custom modification to fix the sidebar menu border issue */
+.skin-blue .sidebar-menu>li>a {
+    border-left: 0px solid transparent;
+}
