@@ -1,7 +1,7 @@
 {
     "id": "BA64EC8B",
-    "path": null,
-    "project_path": null,
+    "path": "~/School/UMaine_Spring_2023/COS 598 Introduction to Data Science/Final Project/CCBC_Web_App/CCBC_Web_App/CCBC_Web_App/app.r",
+    "project_path": "CCBC_Web_App/app.r",
     "type": "r_source",
     "hash": "0",
     "contents": "",
@@ -12,14 +12,16 @@
     "properties": {
         "tempName": "Untitled1",
         "source_window_id": "",
-        "Source": "Source"
+        "Source": "Source",
+        "cursorPosition": "12,22",
+        "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 26740543700926551,
-    "encoding": "",
+    "lastKnownWriteTime": 1694635585,
+    "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1694635083740,
+    "last_content_update": 1694635585792,
     "read_only": false,
     "read_only_alternatives": []
 }
