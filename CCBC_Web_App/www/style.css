@@ -7,7 +7,17 @@
     padding-right: 10px !important;
 }
 
-/* Change NavBar Color */
+/* Header Title Color */
 .skin-blue .main-header .navbar {
     background-color: #a60000;
+}
+
+
+/* Change NavBar Size (Does Nothing) */
+.navbar .navbar-default .navbar-static-top{
+    background-color: #a60000;
+}
+
+.skin-blue .main-header .navbar .sidebar-toggle {
+    color: #00a65a;
 }
