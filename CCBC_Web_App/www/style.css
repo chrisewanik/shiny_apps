@@ -1,6 +1,13 @@
 /* CSS */
 
-/* Custom modification to fix the sidebar menu border issue */
-.skin-blue .sidebar-menu>li>a {
-    border-left: 0px solid transparent;
+
+/* Removing Weird Extra Dashboard Padding */
+.container-fluid {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+
+/* Change NavBar Color */
+.skin-blue .main-header .navbar {
+    background-color: #a60000;
 }
