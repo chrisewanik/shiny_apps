@@ -4,7 +4,6 @@ library(shinydashboard)
 
 # Define UI for the app
 ui <- 
-
     dashboardPage(
     
     # Navbar
@@ -12,8 +11,10 @@ ui <-
     
     # Sidebar
     dashboardSidebar(
+        tags$head(
+            tags$link(rel = "stylesheet", type = "text/css", href = "www/style.css")
+        ),
         sidebarMenu(id = "someID",
-                    menuItem("Dashboard", tabName = "dashboard"),
                     selectInput("year", "Select Year", choices = c("2021", "2020")),
                     selectInput("season", "Select Season", choices = c("Spring", "Summer")),
                     selectInput("team", "Select Team", choices = c("PBA", "OC", "VIU"))
@@ -23,13 +24,19 @@ ui <-
     
     # Main Panel
     dashboardBody(
+        tags$head(
+            tags$link(rel = "stylesheet", type = "text/css", href = "www/style.css")
+        ),
         tabItems(
             tabItem(tabName = "dashboard",
                     fluidRow(
                         box(
                             title = "Table",
+                            width = 12,
                             dataTableOutput("stats_table")
                         ),
+                    ),
+                    fluidRow(
                         box(
                             title = "Plot 1",
                             plotOutput("plot1")
@@ -38,7 +45,7 @@ ui <-
                             title = "Plot 2",
                             plotOutput("plot2")
                         )
-                    )
+                    ),
             )
             # Add more tabItems as needed
         )
