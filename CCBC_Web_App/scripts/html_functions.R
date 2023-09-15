@@ -3,17 +3,19 @@
 
 
 
-#' Create a Shiny Dashboard Page
+##' Create a Shiny Dashboard Page
 #'
 #' This function generates a Shiny dashboard page with pre-defined sidebar and body elements.
 #' 
 #' @param title Character string, the title to display in the dashboard header.
+#' @param standings Logical, whether to remove team and category filters. Default is FALSE.
 #'
 #' @return A Shiny dashboardPage object.
 #'
 #' @examples
 #' create_page("My Dashboard")
-create_page <- function(title) {
+#' create_page("My Dashboard", TRUE)
+create_page <- function(title, standings = FALSE) {
     
     # Create a Shiny dashboard page
     dashboardPage(
@@ -24,11 +26,18 @@ create_page <- function(title) {
         # Sidebar: Add input controls
         dashboardSidebar(
             sidebarMenu(id = "sidebar_menu", # Sidebar ID for potential UI control
-                        # Add dropdowns for year, season, team, and stat category
+                        # Add dropdowns for year, season
                         selectInput("year", "Select Year", choices = c("2021", "2020")),
                         selectInput("season", "Select Season", choices = c("Spring", "Summer")),
                         selectInput("team", "Select Team", choices = c("PBA", "OC", "VIU")),
-                        selectInput("category", "Stat Category", choices = c("Hitting", "Pitching"))
+                        
+                        # Add or remove filters based on 'standings' parameter
+                        if (standings) {
+                            # No additional filters for 'standings' page
+                        } else {
+                            # Weird Comma Error
+                            selectInput("category", "Stat Category", choices = c("Hitting", "Pitching"))
+                        }
             )
         ),
         
@@ -57,4 +66,5 @@ create_page <- function(title) {
         )
     )
 }
+
 
