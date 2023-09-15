@@ -25,6 +25,9 @@ ui <- fluidPage(
         tabPanel("Team Stats",
                  create_page("Team Stats")
         ),
+        tabPanel("Standings",
+                 create_page("Standings", standings = TRUE)
+        ),
     )
 )
 
