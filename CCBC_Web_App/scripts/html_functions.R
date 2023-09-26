@@ -15,7 +15,7 @@
 #' @examples
 #' create_page("My Dashboard")
 #' create_page("My Dashboard", TRUE)
-create_page <- function(title, standings = FALSE) {
+create_page <- function(title, data_table, standings = FALSE) {
     
     # Create a Shiny dashboard page
     dashboardPage(
@@ -27,16 +27,16 @@ create_page <- function(title, standings = FALSE) {
         dashboardSidebar(
             sidebarMenu(id = "sidebar_menu", # Sidebar ID for potential UI control
                         # Add dropdowns for year, season
-                        selectInput("year", "Select Year", choices = c("2021", "2020")),
-                        selectInput("season", "Select Season", choices = c("Spring", "Summer")),
-                        selectInput("team", "Select Team", choices = c("PBA", "OC", "VIU")),
+                        selectInput(inputId = "year", label = "Select Year", choices = c("2021", "2020")),
+                        selectInput(inputId = "season", label = "Select Season", choices = c("Spring", "Summer")),
+                        selectInput(inputId = "team", label = "Select Team", choices = c("PBA", "OC", "VIU")),
                         
                         # Add or remove filters based on 'standings' parameter
                         if (standings) {
                             # No additional filters for 'standings' page
                         } else {
                             # Weird Comma Error
-                            selectInput("category", "Stat Category", choices = c("Hitting", "Pitching"))
+                            selectInput(inputId = "category", label = "Stat Category", choices = c("Hitting", "Pitching"))
                         }
             )
         ),
@@ -45,11 +45,13 @@ create_page <- function(title, standings = FALSE) {
         dashboardBody(
             # Row 1: Table Box
             fluidRow(
+                DT::dataTableOutput(outputId = data_table),
                 box(
+                    # See Data Table
+                    # DT::dataTableOutput(outputId = data_table),
                     title = "Table",
                     width = 12, # Width set to maximum (Bootstrap grid is out of 12)
                     height = 400, # Set height
-                    dataTableOutput("stats_table") # Output ID for the table
                 )
             ),
             # Row 2: Plot Boxes
