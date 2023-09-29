@@ -1,4 +1,22 @@
-# Create RDS DataFrames ---------------------------------------------------
+# Header ---------------------------------------------------------------
+# Script Name: Sabermetrics.R
+# Author: Your Name
+# Created: YYYY-MM-DD
+# Purpose: A brief description of what the script does
+# Required Packages: dplyr, ggplot2, etc.
+# Dependencies: None
+# Input: Path to a CSV file with XYZ data
+# Output: A plot saved as a PNG and a summary CSV file
+# Usage: source('your_script_name.R')
+# License: MIT
+# Contact: your.email@example.com
+# Acknowledgments: This script uses data from [source]
+# Keywords: data wrangling, data visualization
+# Run Time: Approx. 2 minutes
+# Parameter Definitions: 
+#   param1 - controls X
+#   param2 - controls Y
+
 
 # Notes
 # 1. I could not find a wOBA scale equation so I did wOBA/wOBA Coef and found
@@ -375,6 +393,53 @@ pythag_fit <- lm(logWratio ~ 0 + logRratio, data = pythag_tbl)
 
 # Store the coeff
 pythag_coef <- pythag_fit$coefficients[[1]]
+
+# Create final team_stats_tbl
+team_stats_final_tbl <- team_stats_tbl %>% 
+    mutate(RD = r.x - r.y,
+           season_type = as_factor(season_type),
+           WPCT = w / (w+l),
+           xWPCT = (r.x**pythag_coef)/(r.x**pythag_coef + r.y**pythag_coef),
+           xWins = round(xWPCT * g,0),
+           WPCT_diff = WPCT - xWPCT,
+           Win_diff = w - xWins) %>% 
+    select(1:4, 14, 15, 26:30, 6, 17, 25, 5, 7:13, 16:24) %>% 
+    mutate(
+        WPCT = round(WPCT, 3),
+        xWPCT = round(xWPCT, 3),
+        WPCT_diff = round(WPCT_diff, 3)
+    ) %>%
+    rename(
+        "Team"          = team_abbr,
+        "Year"          = year,
+        "Season"        = season_type,
+        "Games"         = g,
+        "Wins"          = w,
+        "Losses"        = l,
+        "Win%"          = WPCT,
+        "xWin%"         = xWPCT,
+        "Win% Diff"     = WPCT_diff,
+        "Win Diff"      = Win_diff,
+        "Runs"          = r.x,
+        "Runs Against"  = r.y,
+        "AB"            = ab,
+        "Hits"          = h.x,
+        "2B"            = doubles,
+        "3B"            = triples,
+        "HR"            = hr,
+        "RBI"           = rbi,
+        "Total Bases"   = tb,
+        "BB"            = bb.x,
+        "IP"            = ip,
+        "Earned Runs"   = er,
+        "Hits Against"  = h.y,
+        "BB Against"    = bb.y,
+        "WP"            = wp,
+        "Hit Batters"   = hbp,
+        "K"             = so,
+        "Batters Faced" = bf
+        
+    )
 
 # EDA ---------------------------------------------------------------
 
