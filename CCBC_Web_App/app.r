@@ -72,7 +72,7 @@ body <- dashboardBody(
                 fluidRow(
                     box(
                         # See Data Table
-                        DT::dataTableOutput(outputId = "player_table"),
+                        DT::DTOutput(outputId = "player_table"),
                         width = 12, # Width set to maximum (Bootstrap grid is out of 12)
                         height = 400, # Set height
                     )
@@ -82,28 +82,6 @@ body <- dashboardBody(
                 fluidRow( 
                     box(plotOutput("plot1"), width = 6),
                     box(plotOutput("plot2"), width = 6)
-                ),
-                
-                # 1.3 Filters ----
-                fluidRow( 
-                    box(
-                        "Box content here", br(), "More box content",
-                        sliderInput("slider", "Slider input:", 1, 100, 50),
-                        textInput("text", "Text input:"),
-                        width = 4
-                    ),
-                    box(
-                        "Box content here", br(), "More box content",
-                        sliderInput("slider", "Slider input:", 1, 100, 50),
-                        textInput("text", "Text input:"),
-                        width = 4
-                    ),
-                    box(
-                        "Box content here", br(), "More box content",
-                        sliderInput("slider", "Slider input:", 1, 100, 50),
-                        textInput("text", "Text input:"),
-                        width = 4
-                    ),
                 ),
                 
                 # 1.4 Tab Test ----
@@ -160,9 +138,13 @@ server <- function(input, output, session) {
         paste("You are on tab:", input$tabs)
     })
     
+    # output$player_table <- DT::datatable(datasetInput())
+    
     # 
     # # Create the output tables (needs changes)
-    output$player_table <- DT::renderDataTable({ datasetInput() })
+    # output$player_table <- DT::renderDataTable({ test() })
+    output$player_table <- DT::renderDT({ 
+        datasetInput() }, filter = c("top"))
 }
 
 
