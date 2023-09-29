@@ -325,6 +325,57 @@ standard_pitching_tbl <- pitchers_tbl %>%
 # Save as an RDS (R Data Storage)
 saveRDS(standard_pitching_tbl, "data/standard_pitching_tbl.rds") 
 
+
+
+# Team Stats --------------------------------------------------------------
+
+
+# Insert Missing PBA data and remove glitch --
+team_pitching_df <- team_pitching_df %>% 
+    # Remove year
+    slice(-104)
+
+# Create New Vector to be inserted
+pba_row <- data.frame(team_abbr = "PBA", year = 2017, season_type = "CCBC", w = 20, l = 3,
+                      ip = 191.2, r = 97, er = 85, h = 170, bb = 88, wp = 15, hbp = 10,
+                      so = 237, bf = 846)
+
+# To insert new_row at position 104
+top <- team_pitching_df[1:103, ]  # Keep rows from 1 to 103
+bottom <- team_pitching_df[104:nrow(team_pitching_df), ]  # Keep rows from 104 to the end
+
+# Combine the top, new_row, and bottom
+team_pitching_df <- bind_rows(top, pba_row, bottom)
+
+# Insert Missing OC data--
+oc_row <- data.frame(team_abbr = "OC", year = 2013, season_type = "CCBC", w = 11, l = 16,
+                      ip = 207.0, r = 159, er = 129, h = 236, bb = 92, wp = 24, hbp = 16,
+                      so = 152, bf = 973)
+
+# To insert new_row at position 104
+top <- team_pitching_df[1:197, ]  # Keep rows from 1 to 197
+bottom <- team_pitching_df[198:nrow(team_pitching_df), ]  # Keep rows from 198 to the end
+
+# Combine the top, new_row, and bottom
+team_pitching_df <- bind_rows(top, oc_row, bottom)
+
+
+# Create team_stats_tbl where batting is .x
+team_stats_tbl <- left_join(team_batting_df, team_pitching_df, by = c("team_abbr", "year", "season_type"))
+
+# Determine the Optimal Pythag Winning % Coef
+pythag_tbl <- team_stats_tbl %>% 
+    filter(season_type %in% c("CCBC")) %>% 
+    select(w, l, r.x, r.y) %>% 
+    mutate(logWratio = log(w/l),
+           logRratio = log(r.x/r.y))
+
+# fit the lm
+pythag_fit <- lm(logWratio ~ 0 + logRratio, data = pythag_tbl)
+
+# Store the coeff
+pythag_coef <- pythag_fit$coefficients[[1]]
+
 # EDA ---------------------------------------------------------------
 
 
