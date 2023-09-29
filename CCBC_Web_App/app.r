@@ -25,6 +25,14 @@ player_pitching_df <- query_database(player_pitching_query)
 standings_df <- query_database(standings_query)
 
 
+# Load in RDS Files -------------------------------------------------------
+
+advanced_hitting_tbl  <-  readRDS("data/advanced_hitting_tbl.rds")
+standard_hitting_tbl  <-  readRDS("data/standard_hitting_tbl.rds")
+base_running_tbl      <-  readRDS("data/base_running_tbl.rds")
+standard_pitching_tbl <-  readRDS("data/standard_pitching_tbl.rds")
+team_stats_tbl        <-  readRDS("data/team_stats_final_tbl.rds")
+
 # Dashboard Header --------------------------------------------------------
 
 
@@ -37,13 +45,17 @@ header <- dashboardHeader(title = "PBA Scouting Portal")
 
 sidebar <- dashboardSidebar(
     sidebarMenu(
+        # if id is present, this id will be used for a Shiny input value, 
+        # and it will report which tab is selected. For example, if id="tabs", 
+        # then input$tabs will be the tabName of the currently-selected tab
+        id = "tabs",
         menuItem("Player Stats", tabName = "players_tab", icon = icon("baseball")),
-        menuItem("Team Stats", tabName = "teams_tab", icon = icon("baseball")),
-        menuItem("Standings", tabName = "standings_tab", icon = icon("baseball")),
+        selectInput("dataset", "Dataset", c("Standard Hitting", "Advanced Hitting", 
+                                            "Base Running", "Standard Pitching", "Team Stats")),
         selectInput(inputId = "year", label = "Select Year", choices = c("2021", "2020")),
         selectInput(inputId = "season", label = "Select Season", choices = c("Spring", "Summer")),
-        selectInput(inputId = "team", label = "Select Team", choices = c("PBA", "OC", "VIU")),
-        selectInput(inputId = "category", label = "Stat Category", choices = c("Hitting", "Pitching"))
+        selectInput(inputId = "team", label = "Select Team", choices = c("PBA", "OC", "VIU"))
+
     )
 )
 
@@ -66,13 +78,13 @@ body <- dashboardBody(
                     )
                 ),
 
-                # 1.3 Plots ----
+                # 1.2 Plots ----
                 fluidRow( 
                     box(plotOutput("plot1"), width = 6),
                     box(plotOutput("plot2"), width = 6)
                 ),
                 
-                # 1.2 Filters ----
+                # 1.3 Filters ----
                 fluidRow( 
                     box(
                         "Box content here", br(), "More box content",
@@ -92,61 +104,16 @@ body <- dashboardBody(
                         textInput("text", "Text input:"),
                         width = 4
                     ),
-                )
-        ),
-        # 2. Team Stats Tab ----
-        tabItem(tabName = "teams_tab",
-                h2("Teams Stats content"),
-                # 2.1 Stats Table ----
+                ),
+                
+                # 1.4 Tab Test ----
                 fluidRow(
-                    box(
-                        # See Data Table
-                        DT::dataTableOutput(outputId = "team_table"),
-                        width = 12, # Width set to maximum (Bootstrap grid is out of 12)
-                        height = 400, # Set height
-                    )
-                ),
-                
-                # 2.2 Plots ----
-                fluidRow( 
-                    box(plotOutput("plot3"), width = 6),
-                    box(plotOutput("plot4"), width = 6)
-                ),
-                
-                # 2.3 Filters ----
-                fluidRow( 
-                    box(
-                        "Box content here", br(), "More box content",
-                        sliderInput("slider", "Slider input:", 1, 100, 50),
-                        textInput("text", "Text input:"),
-                        width = 4
-                    ),
-                    box(
-                        "Box content here", br(), "More box content",
-                        sliderInput("slider", "Slider input:", 1, 100, 50),
-                        textInput("text", "Text input:"),
-                        width = 4
-                    ),
-                    box(
-                        "Box content here", br(), "More box content",
-                        sliderInput("slider", "Slider input:", 1, 100, 50),
-                        textInput("text", "Text input:"),
-                        width = 4
-                    ),
+                    textOutput("currentTab1")
                 )
                 
-        ),
-        # 3. Standings Tab ----
-        tabItem(tabName = "standings_tab",
-                h2("Standings")
         )
     )
 )
-
-
-# Dashboard Page ----------------------------------------------------------
-
-dash_page <- dashboardPage(header, sidebar, body, skin = "black")
 
 
 # UI ----------------------------------------------------------------------
@@ -154,105 +121,48 @@ dash_page <- dashboardPage(header, sidebar, body, skin = "black")
 
 ui <- {
 
-    # Dashboard
-    dash_page
+    dashboardPage(header, sidebar, body, skin = "black")
 }
-
-
-# # Define UI for the app
-# ui <- fluidPage(
-#     # Theme
-#     theme = shinytheme("slate"),
-#     # themeSelector(),
-#     
-#     # Custom CSS
-#     tags$head(
-#         tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
-#     ),
-# 
-#     # NavBar
-#     navbarPage(title = "PBA Analytics",
-# 
-#         # TabPanels
-#         tabPanel("Player Stats", value = "player_stats",
-#                 ## Using create_page function
-#                 # create_page("Player Stats", data_table = "table")
-#                 
-#                 ## Using In-Line Code
-#                 # Create a Shiny dashboard page
-#                 dashboardPage(
-#                     
-#                     # Navbar: Set the title from the function argument
-#                     dashboardHeader(title = "Player Stats"),
-#                     
-#                     # Sidebar: Add input controls
-#                     dashboardSidebar(
-#                         sidebarMenu(id = "sidebar_menu", # Sidebar ID for potential UI control
-#                                     # Add dropdowns for year, season
-#                                     selectInput(inputId = "year", label = "Select Year", choices = c("2021", "2020")),
-#                                     selectInput(inputId = "season", label = "Select Season", choices = c("Spring", "Summer")),
-#                                     selectInput(inputId = "team", label = "Select Team", choices = c("PBA", "OC", "VIU"))
-#                                     
-#                         )
-#                     ),
-#                     
-#                     # Main Panel: Add content boxes
-#                     dashboardBody(
-#                         # Row 1: Table Box
-#                         fluidRow(
-#                             box(
-#                                 # See Data Table
-#                                 DT::dataTableOutput(outputId = "table"),
-#                                 title = "Table",
-#                                 width = 12, # Width set to maximum (Bootstrap grid is out of 12)
-#                                 height = 400, # Set height
-#                             )
-#                         ),
-#                         # Row 2: Plot Boxes
-#                         fluidRow(
-#                             box(
-#                                 title = "Plot 1", # Box title
-#                                 plotOutput("plot1") # Output ID for the first plot
-#                             ),
-#                             box(
-#                                 title = "Plot 2", # Box title
-#                                 plotOutput("plot2") # Output ID for the second plot
-#                             )
-#                         )
-#                     )
-#                 )
-#         ),
-#         tabPanel("Team Stats", value = "team_stats",
-#                  create_page("Team Stats", data_table = "table")
-#         ),
-#         tabPanel("Standings", value = "standings",
-#                  create_page("Standings", data_table = "table", standings = TRUE)
-#         ),
-#     )
-# )
 
 
 # Server ------------------------------------------------------------------
 
 
 server <- function(input, output, session) {
-    # Placeholder for server logic
-    observe({
-        current_tab <- input$my_tabs
-    })
     
-    # See what tab the user is on
+    # Select the Dataset
     datasetInput <- reactive({
-        switch(input$category,
-               "Hitting" = player_batting_df,
-               "Pitching" = player_pitching_df)
+        switch(input$dataset,
+               "Standard Hitting" = standard_hitting_tbl,
+               "Advanced Hitting" = advanced_hitting_tbl,
+               "Base Running"     = base_running_tbl,
+               "Standard Pitching" = standard_pitching_tbl,
+               "Team Stats" = team_stats_tbl
+               )
+    })
+
+    observe({
+        
+        # Print the current tab and stat category to the console
+        print(paste("Current tab: ", input$tabs))
+        # print(paste("Selected Category: ", input$category))
+        
+        # Get the current tab and require to be run
+        # current_tab <- reactive({input$my_tabs})
+        current_tab <- input$my_tabs
+        req(current_tab)
+
     })
     
-    # output$table <- renderDataTable(player_batting_df) # input$category ?
     
-    # Create the output tables (needs changes)
-    output$player_table <- DT::renderDataTable({ player_batting_df })
-    output$team_table <- DT::renderDataTable({ team_batting_df })
+    # Render Text for Tab Testin
+    output$currentTab1 <- renderText({
+        paste("You are on tab:", input$tabs)
+    })
+    
+    # 
+    # # Create the output tables (needs changes)
+    output$player_table <- DT::renderDataTable({ datasetInput() })
 }
 
 
