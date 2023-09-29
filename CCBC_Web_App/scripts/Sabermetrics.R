@@ -174,7 +174,10 @@ pitchers_tbl <- player_pitching_df %>%
         k_per_9 = so * 9 /ip,
         
         # Create BB per 9
-        bb_per_9 = bb * 9 /ip
+        bb_per_9 = bb * 9 /ip,
+        
+        # Create unearned runs
+        uer = r - er
 
     )
 
@@ -226,8 +229,8 @@ advanced_hitting_tbl <- hitters_tbl %>%
         OBP      = round(OBP, 3),
         SLG      = round(SLG, 3),
         OPS      = round(OPS, 3),
-        k_perc   = scales::percent(round(k_perc, 1)),
-        bb_perc  = scales::percent(round(bb_perc, 1)),
+        k_perc   = scales::percent(k_perc, 2),
+        bb_perc  = scales::percent(bb_perc, 2),
         OPS_plus = round(OPS_plus, 0),
         wOBA     = round(wOBA, 3),
         wRC_plus = round(wRC_plus, 0),
@@ -252,7 +255,75 @@ advanced_hitting_tbl <- hitters_tbl %>%
         "wRC+"          = wRC_plus,
         "Off"           = a_Off
     ) 
-    
+
+# Save as an RDS (R Data Storage)
+saveRDS(advanced_hitting_tbl, "data/advanced_hitting_tbl.rds")
+
+# Baserunning
+base_running_tbl <- hitters_tbl %>%
+    select(1, 2, 6, 3:5, 8, 9, 28, 19:22, 30, 54, 23) %>%
+    mutate(
+        steal_percent = scales::percent(steal_percent, 2),
+        wSB           = round(wSB, 1)
+    ) %>%
+    rename(
+        "Last Name"     = last_name,
+        "First Initial" = first_initial,
+        "Team"          = team_abbr,
+        "Year"          = year,
+        "Season"        = season_type,
+        "Games"         = g,
+        "AB"            = ab,
+        "SF"            = sf,
+        "SH"            = sh,
+        "SB"            = sb,
+        "CS"            = cs,
+        "Steal%"        = steal_percent,
+        "P"             = p,
+        "DP"            = dp 
+    )
+
+# Save as an RDS (R Data Storage)
+saveRDS(base_running_tbl, "data/base_running_tbl.rds")  
+
+
+# Player Pitching ---------------------------------------------------------
+
+standard_pitching_tbl <- pitchers_tbl %>% 
+    select(1:7, 9, 20:23, 10, 11, 12, 24, 13:16, 8, 17:19) %>% 
+    mutate(
+        WHIP     = round(WHIP, 2),
+        k_per_9  = round(k_per_9, 1),
+        bb_per_9 = round(bb_per_9, 1)
+    ) %>%
+    rename(
+        "Last Name"     = last_name,
+        "First Initial" = first_initial,
+        "Team"          = team_abbr,
+        "Year"          = year,
+        "Season"        = season_type,
+        "Games"         = g,
+        "Games Started" = gs,
+        "IP"            = ip,
+        "ERA"           = era,
+        "K/9"           = k_per_9,
+        "BB/9"          = bb_per_9,
+        "Hits"          = h,
+        "Runs"          = r,
+        "Earned Runs"   = er,
+        "Unearned Runs" = uer,
+        "BB"            = bb,
+        "K"             = so,
+        "Wins"          = w,
+        "Losses"        = l,
+        "CG"            = cg,
+        "SV"            = sv,
+        "2B"            = doubles,
+        "3B"            = triples
+    )
+
+# Save as an RDS (R Data Storage)
+saveRDS(standard_pitching_tbl, "data/standard_pitching_tbl.rds") 
 
 # EDA ---------------------------------------------------------------
 
