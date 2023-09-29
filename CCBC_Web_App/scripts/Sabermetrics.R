@@ -13,6 +13,7 @@
 
 library(tidyverse)
 library(DBI)
+# library(scales) Not run bc conflicts but here for reference
 
 
 # Source Functions --------------------------------------------------------
@@ -182,7 +183,7 @@ pitchers_tbl <- player_pitching_df %>%
 
 # First the Standard Player Hitting Tbl
 standard_hitting_tbl <- hitters_tbl %>%
-    select(1,2,6, 3:5, 8,9, 28, 7, 25, 27, 36, 11, 29, 12:14, 10, 15:20, 24:25) %>% 
+    select(1,2,6, 3:5, 8,9, 28, 7, 25, 27, 36, 11, 29, 12:14, 26, 10, 15:20, 24:25, 23) %>% 
     mutate(
         OBP = round(OBP, 3),
         SLG = round(SLG, 3),
@@ -210,7 +211,9 @@ standard_hitting_tbl <- hitters_tbl %>%
         "SF"            = sf,
         "SH"            = sh,
         "E"             = e,
-        "P"             = p
+        "P"             = p,
+        "Total Bases"   = Total_Bases,
+        "DP"            = dp
     ) 
 
 # Save as an RDS (R Data Storage)
@@ -218,7 +221,37 @@ saveRDS(standard_hitting_tbl, "data/standard_hitting_tbl.rds")
 
 # The Advanced View
 advanced_hitting_tbl <- hitters_tbl %>%
-    select(1, 2, 6, 3:5, 8, 9, 28, 25, 27, 36, 43, 31, 47, 56, 44, 54, 55)
+    select(1, 2, 6, 3:5, 8, 9, 28, 34, 35, 25, 27, 36, 43, 31, 47, 56, 44, 54, 55, 32, 33) %>% 
+    mutate(
+        OBP      = round(OBP, 3),
+        SLG      = round(SLG, 3),
+        OPS      = round(OPS, 3),
+        k_perc   = scales::percent(round(k_perc, 1)),
+        bb_perc  = scales::percent(round(bb_perc, 1)),
+        OPS_plus = round(OPS_plus, 0),
+        wOBA     = round(wOBA, 3),
+        wRC_plus = round(wRC_plus, 0),
+        o_WAA    = round(o_WAA, 1),
+        wRAA     = round(wRAA, 1),
+        wSB      = round(wSB, 1),
+        a_Off    = round(a_Off, 1),
+        BABIP    = round(BABIP, 3),
+        ISO      = round(ISO, 3)
+    ) %>% 
+    rename(
+        "Last Name"     = last_name,
+        "First Initial" = first_initial,
+        "Team"          = team_abbr,
+        "Year"          = year,
+        "Season"        = season_type,
+        "Games"         = g,
+        "AB"            = ab,
+        "K%"            = k_perc,
+        "BB%"           = bb_perc,
+        "OPS+"          = OPS_plus,
+        "wRC+"          = wRC_plus,
+        "Off"           = a_Off
+    ) 
     
 
 # EDA ---------------------------------------------------------------
