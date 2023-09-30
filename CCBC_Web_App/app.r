@@ -7,6 +7,7 @@ library(shinythemes)
 library(tidyverse)
 library(DBI)
 library(DT)
+library(plotly)
 
 
 # Source Functions --------------------------------------------------------
@@ -54,7 +55,10 @@ sidebar <- dashboardSidebar(
                                             "Base Running", "Standard Pitching", "Team Stats")),
         selectInput(inputId = "year", label = "Select Year", choices = c("2021", "2020")),
         selectInput(inputId = "season", label = "Select Season", choices = c("Spring", "Summer")),
-        selectInput(inputId = "team", label = "Select Team", choices = c("PBA", "OC", "VIU"))
+        selectInput(inputId = "team", label = "Select Team", choices = c("PBA", "OC", "VIU")),
+        selectInput(inputId = "input_var", label = "Plot Var", 
+                    choices = mtcars %>% colnames(),
+                    selected = "mpg")
 
     )
 )
@@ -74,14 +78,14 @@ body <- dashboardBody(
                         # See Data Table
                         DT::DTOutput(outputId = "player_table"),
                         width = 12, # Width set to maximum (Bootstrap grid is out of 12)
-                        height = 400, # Set height
+                        height = 950, # Set height
                     )
                 ),
 
                 # 1.2 Plots ----
                 fluidRow( 
-                    box(plotOutput("plot1"), width = 6),
-                    box(plotOutput("plot2"), width = 6)
+                    box(# Output plot
+                        plotlyOutput("barplot"), width = 12),
                 ),
                 
                 # 1.4 Tab Test ----
@@ -119,17 +123,14 @@ server <- function(input, output, session) {
                )
     })
 
+    # Observe Statement for Testing UI
     observe({
-        
         # Print the current tab and stat category to the console
         print(paste("Current tab: ", input$tabs))
-        # print(paste("Selected Category: ", input$category))
         
         # Get the current tab and require to be run
-        # current_tab <- reactive({input$my_tabs})
         current_tab <- input$my_tabs
         req(current_tab)
-
     })
     
     
@@ -138,13 +139,49 @@ server <- function(input, output, session) {
         paste("You are on tab:", input$tabs)
     })
     
-    # output$player_table <- DT::datatable(datasetInput())
-    
-    # 
-    # # Create the output tables (needs changes)
-    # output$player_table <- DT::renderDataTable({ test() })
+    # Render the DataTable
     output$player_table <- DT::renderDT({ 
-        datasetInput() }, filter = c("top"))
+        datatable(datasetInput(),
+                  rownames = FALSE,
+                  # filter = "top",
+                  # CSS Class
+                  class = "row-border compact stripe",
+                  options = list(
+                    autoWidth=TRUE,
+                    scrollX = TRUE,
+                    pageLength = 25
+                    )
+                  )
+    })
+    
+    # Render our Barplot
+    output$barplot <- renderPlotly({
+        
+        # Sort the selected variable in descending order and take top 10
+        sorting_col <- input$input_var
+        top_10_values <- mtcars %>% 
+            # get allows you to refer to the column name dynamically
+            arrange(desc(get(sorting_col))) %>% 
+            head(10)
+        
+        # Generate barplot
+        plot <- plot_ly(
+            top_10_values, 
+            x = ~rownames(top_10_values), 
+            y = as.formula(paste("~`", sorting_col, "`", sep="")),
+            type = 'bar',
+            marker = list(color = 'rgb(158,202,225)')
+        ) %>% 
+            layout(
+                title = paste("Top 10 values for", sorting_col),
+                xaxis = list(title = ""),
+                yaxis = list(title = sorting_col),
+                template = "plotly_white" # Light theme
+            )
+        
+        return(plot)
+    })
+    
 }
 
 
