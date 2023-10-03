@@ -58,7 +58,9 @@ sidebar <- dashboardSidebar(
         # and it will report which tab is selected. For example, if id="tabs", 
         # then input$tabs will be the tabName of the currently-selected tab
         id = "tabs",
-        menuItem("Player Stats", tabName = "players_tab", icon = icon("baseball")),
+        menuItem("Welcome", tabName = "Welcome", icon = icon("door-open")),
+        menuItem("Statistics Dictionary", tabName = "stat_dict", icon = icon("info")),
+        menuItem("Dashboard", tabName = "dashboard", icon = icon("baseball")),
         selectInput("dataset", "Dataset", c("Standard Hitting", "Advanced Hitting", 
                                             "Base Running", "Standard Pitching", "Team Stats")),
         checkboxGroupInput(inputId = "year", label = "Select Year", 
@@ -76,8 +78,31 @@ sidebar <- dashboardSidebar(
 
 body <- dashboardBody(
     tabItems(
-        # 1. Player Stats Tab ----
-        tabItem(tabName = "players_tab",
+        # 1. General Information Tab ----
+        tabItem(tabName = "Welcome",
+                h2("General Information"),
+                fluidRow(
+                    box(
+                        h3("Introduction"),
+                        p("This is where the introduction text will go."),
+                        width = 12
+                    )
+                )
+        ),
+        
+        # 2. Guidelines Tab ----
+        tabItem(tabName = "stat_dict",
+                h2("Guidelines and Instructions"),
+                fluidRow(
+                    box(
+                        h3("Guidelines"),
+                        p("This is where the guidelines text will go."),
+                        width = 12
+                    )
+                )
+        ),
+        # 3. Dashboard ----
+        tabItem(tabName = "dashboard",
                 h2("Player Stats Dashboard"),
                 # 1.1 Stats Table ----
                 fluidRow(
@@ -139,7 +164,7 @@ server <- function(input, output, session) {
         datatable(dataset_filtered(),
                   extensions = 'Buttons',
                   rownames = FALSE,
-                  # filter = "top",
+                  filter = "top",
                   # CSS Class
                   class = "row-border compact stripe",
                   options = list(
