@@ -8,6 +8,8 @@ library(tidyverse)
 library(DBI)
 library(DT)
 library(plotly)
+library(tidyquant)
+library(scales)
 
 
 # Source Functions --------------------------------------------------------
@@ -34,6 +36,12 @@ base_running_tbl      <-  readRDS("data/base_running_tbl.rds")
 standard_pitching_tbl <-  readRDS("data/standard_pitching_tbl.rds")
 team_stats_tbl        <-  readRDS("data/team_stats_final_tbl.rds")
 
+
+# Constants ---------------------------------------------------------------
+
+years <- unique(advanced_hitting_tbl$Year)
+seasons <- levels(unique(advanced_hitting_tbl$Season))
+
 # Dashboard Header --------------------------------------------------------
 
 
@@ -53,12 +61,11 @@ sidebar <- dashboardSidebar(
         menuItem("Player Stats", tabName = "players_tab", icon = icon("baseball")),
         selectInput("dataset", "Dataset", c("Standard Hitting", "Advanced Hitting", 
                                             "Base Running", "Standard Pitching", "Team Stats")),
-        selectInput(inputId = "year", label = "Select Year", choices = c("2021", "2020")),
-        selectInput(inputId = "season", label = "Select Season", choices = c("Spring", "Summer")),
-        selectInput(inputId = "team", label = "Select Team", choices = c("PBA", "OC", "VIU")),
-        selectInput(inputId = "input_var", label = "Plot Var", 
-                    choices = mtcars %>% colnames(),
-                    selected = "mpg")
+        checkboxGroupInput(inputId = "year", label = "Select Year", 
+                    choices = years, selected = 2023),
+        checkboxGroupInput(inputId = "season", label = "Select Season", 
+                    choices = seasons, selected = "CCBC"),
+        selectInput(inputId = "input_var", label = "Plotting Variable", "N/A")
 
     )
 )
@@ -76,7 +83,7 @@ body <- dashboardBody(
                 fluidRow(
                     box(
                         # See Data Table
-                        DT::DTOutput(outputId = "player_table"),
+                        DT::DTOutput(outputId = "table"),
                         width = 12, # Width set to maximum (Bootstrap grid is out of 12)
                         height = 950, # Set height
                     )
@@ -84,15 +91,10 @@ body <- dashboardBody(
 
                 # 1.2 Plots ----
                 fluidRow( 
-                    box(# Output plot
-                        plotlyOutput("barplot"), width = 12),
-                ),
-                
-                # 1.4 Tab Test ----
-                fluidRow(
-                    textOutput("currentTab1")
+                    # Output plot
+                    box(plotlyOutput("team_plot"), 
+                        width = 12)
                 )
-                
         )
     )
 )
@@ -122,26 +124,19 @@ server <- function(input, output, session) {
                "Team Stats" = team_stats_tbl
                )
     })
-
-    # Observe Statement for Testing UI
-    observe({
-        # Print the current tab and stat category to the console
-        print(paste("Current tab: ", input$tabs))
-        
-        # Get the current tab and require to be run
-        current_tab <- input$my_tabs
-        req(current_tab)
-    })
     
-    
-    # Render Text for Tab Testin
-    output$currentTab1 <- renderText({
-        paste("You are on tab:", input$tabs)
+    # Filter the dataset
+    dataset_filtered <- reactive({
+        req(input$year)
+        req(input$season)
+        filter(datasetInput(), 
+               Year == input$year,
+               Season %in% input$season)
     })
     
     # Render the DataTable
-    output$player_table <- DT::renderDT({ 
-        datatable(datasetInput(),
+    output$table <- DT::renderDT({ 
+        datatable(dataset_filtered(),
                   rownames = FALSE,
                   # filter = "top",
                   # CSS Class
@@ -154,32 +149,40 @@ server <- function(input, output, session) {
                   )
     })
     
-    # Render our Barplot
-    output$barplot <- renderPlotly({
+    #
+    observe({
+        updateSelectInput(session, "input_var", 
+                          choices = unique(dataset_filtered() %>% colnames()),
+                          selected = tail(unique(colnames(dataset_filtered())), 1))
+    })
+    
+    
+    # Render our Team Plot
+    
+    output$team_plot <- renderPlotly({
         
-        # Sort the selected variable in descending order and take top 10
-        sorting_col <- input$input_var
-        top_10_values <- mtcars %>% 
-            # get allows you to refer to the column name dynamically
-            arrange(desc(get(sorting_col))) %>% 
-            head(10)
+        # Make sure input$input_var exists and is not NULL
+        req(input$input_var)
         
-        # Generate barplot
-        plot <- plot_ly(
-            top_10_values, 
-            x = ~rownames(top_10_values), 
-            y = as.formula(paste("~`", sorting_col, "`", sep="")),
-            type = 'bar',
-            marker = list(color = 'rgb(158,202,225)')
-        ) %>% 
-            layout(
-                title = paste("Top 10 values for", sorting_col),
-                xaxis = list(title = ""),
-                yaxis = list(title = sorting_col),
-                template = "plotly_white" # Light theme
-            )
+        # Calculate the summarized data and min/max for the selected variable
+        hitting_data <- dataset_filtered() %>%
+            group_by(Team) %>%
+            summarise_if(is.numeric, mean, na.rm = TRUE) %>%
+            ungroup() %>%
+            mutate(Team = fct_reorder(Team, .data[[input$input_var]]))  # Use the selected variable for ordering
+            # .data[[input$input_var]] allows us to refer to columns in the dataframe using a variable (in this case, input$input_var)
         
-        return(plot)
+        # Calculate min and max of the selected variable
+        min_val <- min(hitting_data[[input$input_var]], na.rm = TRUE) / 1.5
+        max_val <- max(hitting_data[[input$input_var]], na.rm = TRUE) * 1.15
+        
+        # Generate the ggplot
+        g <- ggplot(hitting_data, aes(x = Team, y = .data[[input$input_var]])) +  # Use the selected variable for plotting
+            geom_bar(stat="identity", color='red', fill='red') +
+            coord_cartesian(ylim = c(min_val, max_val))
+        
+        ggplotly(g)
+        
     })
     
 }
