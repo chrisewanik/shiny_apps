@@ -65,7 +65,7 @@ sidebar <- dashboardSidebar(
                     choices = years, selected = 2023),
         checkboxGroupInput(inputId = "season", label = "Select Season", 
                     choices = seasons, selected = "CCBC"),
-        selectInput(inputId = "input_var", label = "Plotting Variable", "N/A")
+        selectInput(inputId = "input_var", label = "Plotting Variable", "Team")
 
     )
 )
@@ -85,7 +85,7 @@ body <- dashboardBody(
                         # See Data Table
                         DT::DTOutput(outputId = "table"),
                         width = 12, # Width set to maximum (Bootstrap grid is out of 12)
-                        height = 950, # Set height
+                        height = 800, # Set height
                     )
                 ),
 
@@ -137,6 +137,7 @@ server <- function(input, output, session) {
     # Render the DataTable
     output$table <- DT::renderDT({ 
         datatable(dataset_filtered(),
+                  extensions = 'Buttons',
                   rownames = FALSE,
                   # filter = "top",
                   # CSS Class
@@ -144,7 +145,10 @@ server <- function(input, output, session) {
                   options = list(
                     autoWidth=TRUE,
                     scrollX = TRUE,
-                    pageLength = 25
+                    pageLength = 20,
+                    # keep search and paging
+                    dom = 'Bfrtip',
+                    buttons = c('csv', 'excel')
                     )
                   )
     })
