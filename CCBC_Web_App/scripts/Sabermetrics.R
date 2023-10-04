@@ -441,6 +441,10 @@ team_stats_final_tbl <- team_stats_tbl %>%
         
     )
 
+
+# Save as an RDS (R Data Storage)
+saveRDS(team_stats_final_tbl, "data/team_stats_final_tbl.rds") 
+
 # EDA ---------------------------------------------------------------
 
 
