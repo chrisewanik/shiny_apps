@@ -1,21 +1,10 @@
 # Header ---------------------------------------------------------------
 # Script Name: Sabermetrics.R
-# Author: Your Name
-# Created: YYYY-MM-DD
+# Author: Christopher Ewanik
+# Created: 2023-10-03
 # Purpose: A brief description of what the script does
-# Required Packages: dplyr, ggplot2, etc.
-# Dependencies: None
-# Input: Path to a CSV file with XYZ data
-# Output: A plot saved as a PNG and a summary CSV file
-# Usage: source('your_script_name.R')
-# License: MIT
-# Contact: your.email@example.com
-# Acknowledgments: This script uses data from [source]
-# Keywords: data wrangling, data visualization
-# Run Time: Approx. 2 minutes
-# Parameter Definitions: 
-#   param1 - controls X
-#   param2 - controls Y
+# Acknowledgments: This script uses data from Pointstreak and Stats from FanGraphs
+# Keywords: data wrangling, data visualization, Statistics
 
 
 # Notes
