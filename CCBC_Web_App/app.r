@@ -37,6 +37,19 @@ standard_pitching_tbl <-  readRDS("data/standard_pitching_tbl.rds")
 team_stats_tbl        <-  readRDS("data/team_stats_final_tbl.rds")
 
 
+# Change Double Play ------------------------------------------------------
+
+standard_hitting_tbl <- standard_hitting_tbl %>% 
+    rename(
+        "GDP" = DP
+    )
+
+base_running_tbl <- base_running_tbl %>% 
+    rename(
+        "GDP" = DP
+    )
+
+
 # Constants ---------------------------------------------------------------
 
 years <- unique(advanced_hitting_tbl$Year)
@@ -45,7 +58,7 @@ seasons <- levels(unique(advanced_hitting_tbl$Season))
 # Dashboard Header --------------------------------------------------------
 
 
-header <- dashboardHeader(title = "PBA Scouting Portal")
+header <- dashboardHeader(title = "Up North Baseball")
 
 
 
@@ -77,14 +90,71 @@ sidebar <- dashboardSidebar(
 
 
 body <- dashboardBody(
+    tags$head(
+        tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+    ),
     tabItems(
         # 1. General Information Tab ----
         tabItem(tabName = "Welcome",
-                h2("General Information"),
                 fluidRow(
                     box(
                         h3("Introduction"),
-                        p("This is where the introduction text will go."),
+                        p("Hello! Welcome to Up North Baseball (name isn't set).
+                          This site is the first home for advanced analytics for the CCBC.
+                          While this is the first working version and many updates will hopefully
+                          be made over time, I hope you enjoy your time here. If this is your first time
+                          please read a bit to understand what you are looking at"),
+                        width = 12
+                    ),
+                    box(
+                        h3("About the Dashboard"),
+                        p("The first version is shipped with 5 different datasets that can be selected on the sidebar. 
+                          You can also use the filter to select the year(s), and season type(s). Note that it can get very messy
+                          for preseason stats due to the large number of non-conference opponents. The last item on the sidebar 
+                          is the input to the plot. Use this to create a plot of any statistic, grouped by the teams. You can also
+                          search by Team and Player name. To do this,", em("Please use the Search bar in the top right corner"), ". 
+                          To filter by the different statistics, click in the little box above the stat and select the range you want to see. 
+                          You are also able to export this data to CSV or Excel with the button in the top right. Note that the export will only show 
+                          the stats shown on the table you see (not the other tabs)."),
+                        width = 12
+                    ),
+                    box(
+                        h3("Limitations"),
+                        tags$ol(
+                            list(
+                                tags$li("Only contains stats from qualified hitters and pitchers. 
+                                        This means that if you are searching for a player that you know
+                                        played in a certain year and can't find them, they likely did not
+                                        qualify"),
+                                tags$li("Not updated in real-time. Hopefully by the 2024 season the app will
+                                        include real-time updates"),
+                                tags$li("Sabermetrics are not always the same as MLB equivalents. We highly encourage 
+                                        you to read the Statistics Dictionary for more information about each metric
+                                        and how it is to be used"),
+                                tags$li("The make a plot can be glitchy. It is designed to show the average per team which
+                                        works fine with stats like OPS, AVG and wOBA but does not really work with counting statistics
+                                        (like homeruns). This should be addressed in subsequent updates")
+                            )
+                        ),
+                        width = 12
+                    ),
+                    box(
+                        h3("Get Involved"),
+                        p("The end goal of this early project is to be the site that hosts all Canadian baseball 
+                          statistics from High School / Travel ball to College across the country. It is my belief that
+                          better visibility and more accurate information will grow the game in Canada. If you have any
+                          programming ability specifically in front end development (HTML/CSS/JS), software engineering (Docker),
+                          or Shiny Apps If and you are curious about getting involved please email me ", 
+                          a(href = "mailto:chris_ewanik@outlook.com", "chris_ewanik@outlook.com")),
+                        width = 12
+                    ),
+                    box(
+                        h3("About the Developer"),
+                        p("This page is currently ran by Christopher Ewanik. Christopher is
+                          a finishing a Master's Degree in Data Science & Engineering from the
+                          University of Maine. Christopher played collegiately at Prairie Baseball Academy
+                          before transferring to Husson University (NCAA DIII). Christopher is currently seeking 
+                          internships and full time employment upon his tentative graduation date of May 2024"),
                         width = 12
                     )
                 )
@@ -103,7 +173,6 @@ body <- dashboardBody(
         ),
         # 3. Dashboard ----
         tabItem(tabName = "dashboard",
-                h2("Player Stats Dashboard"),
                 # 1.1 Stats Table ----
                 fluidRow(
                     box(
@@ -130,7 +199,7 @@ body <- dashboardBody(
 
 ui <- {
 
-    dashboardPage(header, sidebar, body, skin = "black")
+    dashboardPage(header, sidebar, body, skin = "red")
 }
 
 
