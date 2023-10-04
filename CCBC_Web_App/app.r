@@ -315,7 +315,7 @@ server <- function(input, output, session) {
         req(input$year)
         req(input$season)
         filter(datasetInput(), 
-               Year == input$year,
+               Year %in% input$year,
                Season %in% input$season)
     })
     
